@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@keyframes spark {
+  0% {
+    box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7);
+    border-color: rgba(234, 179, 8, 0);
+  }
+  50% {
+    box-shadow: 0 0 15px 3px rgba(234, 179, 8, 0.4);
+    border-color: rgba(234, 179, 8, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(234, 179, 8, 0);
+    border-color: rgba(234, 179, 8, 0);
+  }
+}
+
+.animate-spark {
+  animation: spark 0.8s ease-out;
+}
