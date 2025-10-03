@@ -1,18 +1,26 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Fonte oficial sem espaço no nome (Vercel/Netlify/Local)
-let url: string | undefined = import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_BASE_URL;
-let anon: string | undefined = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_BASE_ANON_KEY;
+// oficiais (sem espaço, civilizadas)
+let url: string | undefined =
+  import.meta.env.VITE_SUPABASE_URL ||
+  import.meta.env.VITE_BASE_URL;
 
-// SHIM de compatibilidade: cobre o caso bizarro do Bolt injetar nomes com espaço.
-// Aciona só se as oficiais não vierem definidas.
-const weirdUrl = (import.meta as any)?.env?.['VITE_Bolt Database_URL'];
-const weirdAnon = (import.meta as any)?.env?.['VITE_Bolt Database_ANON_KEY'];
-if (!url && typeof weirdUrl === 'string') url = weirdUrl;
-if (!anon && typeof weirdAnon === 'string') anon = weirdAnon;
+let anon: string | undefined =
+  import.meta.env.VITE_SUPABASE_ANON_KEY ||
+  import.meta.env.VITE_BASE_ANON_KEY;
+
+// fallbacks "BOLT" (sem espaço, versão que sua tela pede)
+if (!url)  url  = (import.meta as any)?.env?.VITE_BOLT_BASE_URL;
+if (!anon) anon = (import.meta as any)?.env?.VITE_BOLT_BASE_ANON_KEY;
+
+// fallback final: aberração com ESPAÇO (caso o Bolt injete isso no preview interno)
+if (!url)  url  = (import.meta as any)?.env?.['VITE_Bolt Database_URL'];
+if (!anon) anon = (import.meta as any)?.env?.['VITE_Bolt Database_ANON_KEY'];
 
 if (!url || !anon) {
-  throw new Error('Missing Supabase environment variables. Expected VITE_SUPABASE_URL/VITE_SUPABASE_ANON_KEY (ou VITE_BASE_*).');
+  throw new Error(
+    'Missing Supabase envs. Defina VITE_BASE_URL/VITE_BASE_ANON_KEY (ou VITE_BOLT_BASE_*; ou as malditas com espaço do Bolt).'
+  );
 }
 
 export const supabase = createClient(url, anon);
