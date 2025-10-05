@@ -1,8 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Bold, Heading1, Heading2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { Thought } from '../lib/supabase';
 
-export function NotesSidebar() {
+interface NotesSidebarProps {
+  thoughts?: Thought[];
+}
+
+export function NotesSidebar({ thoughts = [] }: NotesSidebarProps) {
   const [content, setContent] = useState('');
   const [noteId, setNoteId] = useState<string | null>(null);
 
@@ -36,13 +41,13 @@ export function NotesSidebar() {
   }
 
   function insertFormat(format: string) {
-    const textarea = document.getElementById('notes-textarea') as HTMLTextAreaElement;
+    const textarea = document.getElementById('notes-textarea') as HTMLTextAreaElement | null;
     if (!textarea) return;
 
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
+    const start = textarea.selectionStart ?? 0;
+    const end = textarea.selectionEnd ?? 0;
     const selectedText = content.substring(start, end);
-    let newText = '';
+    let newText = content;
 
     switch (format) {
       case 'h1':
@@ -62,6 +67,10 @@ export function NotesSidebar() {
       textarea.setSelectionRange(start + 2, start + 2 + selectedText.length);
     }, 0);
   }
+
+  const sortedThoughts = [...thoughts]
+    .filter(t => !t.is_backup && t.text?.trim())
+    .sort((a, b) => a.text.toLowerCase().localeCompare(b.text.toLowerCase()));
 
   return (
     <div className="w-80 bg-zinc-950 border-l border-zinc-800 flex flex-col h-screen">
@@ -93,14 +102,36 @@ export function NotesSidebar() {
           </div>
         </div>
       </div>
-      <div className="flex-1 p-4">
-        <textarea
-          id="notes-textarea"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Suas anotações..."
-          className="w-full h-full bg-transparent text-zinc-300 resize-none outline-none placeholder-zinc-600 font-mono text-sm leading-relaxed"
-        />
+
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 p-4 overflow-y-auto">
+          <textarea
+            id="notes-textarea"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="Suas anotações..."
+            className="w-full h-32 bg-transparent text-zinc-300 resize-none outline-none placeholder-zinc-600 font-mono text-sm leading-relaxed"
+          />
+        </div>
+
+        {sortedThoughts.length > 0 && (
+          <div className="border-t border-zinc-800 p-4 overflow-y-auto max-h-[calc(100vh-300px)]">
+            <h3 className="text-zinc-500 font-mono text-xs mb-3 uppercase tracking-wider">
+              Pensamentos
+            </h3>
+            <div className="space-y-1">
+              {sortedThoughts.map((thought) => (
+                <div
+                  key={thought.id}
+                  className="text-zinc-400 text-xs font-mono py-1 px-2 hover:bg-zinc-900 rounded transition-colors cursor-default"
+                  title={thought.text}
+                >
+                  {thought.text}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

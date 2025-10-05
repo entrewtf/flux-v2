@@ -404,7 +404,7 @@ export function Dashboard() {
         )}
       </div>
 
-      {showSidebar && <NotesSidebar />}
+      {showSidebar && <NotesSidebar thoughts={thoughts} />}
     </div>
   );
 }
